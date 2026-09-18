@@ -10,7 +10,7 @@ public sealed record EmptyNameTableTests
     {
         ITable table = new EmptyNameTable();
 
-        Assert.Equal("", table.Name.TextValue);
+        Assert.Equal(string.Empty, table.Name.TextValue);
     }
 
     [Fact]

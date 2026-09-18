@@ -41,6 +41,8 @@ This is a **sample-data NuGet library**: a catalogue of named, predefined relati
 
 **Multi-targeting:** net7.0, net8.0, net9.0, net10.0. All types must remain AOT-compatible (`IsAotCompatible = true`).
 
+**Package validation** is present but commented out in the csproj — there is no published baseline yet. Uncomment `EnablePackageValidation` and set `PackageValidationBaselineVersion` to the latest released version once the first tag is published, so breaking API changes fail the build.
+
 **Tests:** xUnit project targeting net10.0, mirroring the source layout one `…Tests` record per sample. Membership is asserted by structural hash (`ColumnHash`, `IndexHash`, `TableHash`, `ForeignKeyHash` from `Pure.RelationalSchema.HashCodes`), never by reference equality. Every sample needs: its name, the count of each collection, and a `Assert.Contains` per element — this is what keeps the mutation score at 100%.
 
 **CI thresholds** (`.github/workflows/build-and-test.yml`): line coverage 98 (warning at 99) and mutation score 98. The repository currently sits at 100% for both; a new sample without matching tests will fail the build.
@@ -58,6 +60,8 @@ Enforced via `.editorconfig` and `dotnet format` + `csharpier` in CI:
 - No implicit object creation when the type is not apparent — `new Foo()`, not `new()`
 - Private fields: `_camelCase`
 - Max line length: 90 characters
+- Prefer the dedicated `Pure.Primitives` type over a parameterised one — `new EmptyString()`, not `new String("")`
+- Use `string.Empty` rather than `""` in test assertions
 - Use `_ = Assert.Single(...)` in tests — an unused expression value trips IDE0058
 
 ## Commit Messages

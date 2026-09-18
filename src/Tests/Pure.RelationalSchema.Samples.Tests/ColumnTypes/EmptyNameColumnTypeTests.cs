@@ -10,6 +10,6 @@ public sealed record EmptyNameColumnTypeTests
     {
         IColumnType columnType = new EmptyNameColumnType();
 
-        Assert.Equal("", columnType.Name.TextValue);
+        Assert.Equal(string.Empty, columnType.Name.TextValue);
     }
 }

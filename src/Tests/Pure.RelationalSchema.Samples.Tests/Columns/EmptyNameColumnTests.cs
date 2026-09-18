@@ -12,7 +12,7 @@ public sealed record EmptyNameColumnTests
     {
         IColumn column = new EmptyNameColumn();
 
-        Assert.Equal("", column.Name.TextValue);
+        Assert.Equal(string.Empty, column.Name.TextValue);
     }
 
     [Fact]

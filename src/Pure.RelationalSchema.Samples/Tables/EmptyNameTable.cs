@@ -1,14 +1,14 @@
 using Pure.Primitives.Abstractions.String;
+using Pure.Primitives.String;
 using Pure.RelationalSchema.Abstractions.Column;
 using Pure.RelationalSchema.Abstractions.Index;
 using Pure.RelationalSchema.Abstractions.Table;
-using String = Pure.Primitives.String.String;
 
 namespace Pure.RelationalSchema.Samples.Tables;
 
 public sealed record EmptyNameTable : ITable
 {
-    public IString Name => new String("");
+    public IString Name => new EmptyString();
 
     public IEnumerable<IColumn> Columns => [];
 
