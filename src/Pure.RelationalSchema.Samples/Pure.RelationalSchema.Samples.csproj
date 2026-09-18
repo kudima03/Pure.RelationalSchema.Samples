@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- Enable once the first version is published to NuGet, with the baseline
+         set to the latest released version, so breaking API changes fail the build.
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
+    -->
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Pure.RelationalSchema.Samples</PackageId>
+    <RootNamespace>Pure.RelationalSchema.Samples</RootNamespace>
+    <AssemblyName>Pure.RelationalSchema.Samples</AssemblyName>
+    <Authors>Dmitry Kurochkin</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kudima03/Pure.RelationalSchema.Samples</PackageProjectUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Pure.Primitives" Version="3.6.5" />
+    <PackageReference Include="Pure.RelationalSchema.Abstractions" Version="1.2.0" />
+  </ItemGroup>
+</Project>

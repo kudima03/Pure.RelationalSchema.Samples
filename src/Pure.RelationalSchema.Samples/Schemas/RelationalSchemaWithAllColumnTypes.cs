@@ -1,0 +1,17 @@
+using Pure.Primitives.Abstractions.String;
+using Pure.RelationalSchema.Abstractions.ForeignKey;
+using Pure.RelationalSchema.Abstractions.Schema;
+using Pure.RelationalSchema.Abstractions.Table;
+using Pure.RelationalSchema.Samples.Tables;
+using String = Pure.Primitives.String.String;
+
+namespace Pure.RelationalSchema.Samples.Schemas;
+
+public sealed record RelationalSchemaWithAllColumnTypes : ISchema
+{
+    public IString Name => new String("schema_with_all_column_types");
+
+    public IEnumerable<ITable> Tables => [new AllColumnTypesTable()];
+
+    public IEnumerable<IForeignKey> ForeignKeys => [];
+}
