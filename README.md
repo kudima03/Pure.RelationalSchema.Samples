@@ -27,6 +27,154 @@ The catalogue is graded from trivial to full-set, so a consumer can pick the exa
 
 Because samples are ordinary `ISchema`/`ITable`/`IColumn`/`IIndex`/`IForeignKey` implementations, they compose with the rest of the ecosystem — hashing, serialization, OpenAPI schemas, storage adapters and conditions — without any adapter code.
 
+## Schema Catalogue
+
+```
+Pure.RelationalSchema.Samples.Schemas/
+├── EmptyRelationalSchema                    (empty_schema)
+│
+├── SingleTableRelationalSchema               (single_table_schema)
+│   └── SingleColumnTable
+│       └── id
+│
+├── RelationalSchemaWithoutForeignKeys        (schema_without_foreign_keys)
+│   ├── EmptyTable
+│   ├── SingleColumnTable
+│   │   └── id
+│   └── TableWithoutIndexes
+│       ├── id
+│       ├── name
+│       └── created_at
+│
+├── RelationalSchemaWithIndexes               (schema_with_indexes)
+│   ├── TableWithSingleIndex
+│   │   ├── id
+│   │   └── name
+│   └── TableWithIndexes
+│       ├── id
+│       ├── tenant_id
+│       ├── name
+│       └── created_at
+│
+├── RelationalSchemaWithAllColumnTypes        (schema_with_all_column_types)
+│   └── AllColumnTypesTable
+│       ├── id
+│       ├── name
+│       ├── age
+│       ├── quantity
+│       ├── price
+│       ├── is_active
+│       ├── birth_date
+│       ├── start_time
+│       ├── created_at
+│       └── (empty name)
+│
+├── RelationalSchemaWithForeignKeys           (schema_with_foreign_keys)
+│   ├── UsersTable
+│   │   ├── id
+│   │   ├── tenant_id
+│   │   ├── name
+│   │   ├── birth_date
+│   │   ├── is_active
+│   │   └── created_at
+│   ├── OrdersTable
+│   │   ├── id
+│   │   ├── tenant_id
+│   │   ├── user_id
+│   │   ├── price
+│   │   └── created_at
+│   └── ForeignKeys
+│       └── SingleColumnForeignKey    orders.user_id → users.id
+│
+├── RelationalSchemaWithCompositeForeignKey   (schema_with_composite_foreign_key)
+│   ├── OrdersTable
+│   │   ├── id
+│   │   ├── tenant_id
+│   │   ├── user_id
+│   │   ├── price
+│   │   └── created_at
+│   ├── OrderItemsTable
+│   │   ├── id
+│   │   ├── tenant_id
+│   │   ├── order_id
+│   │   ├── product_id
+│   │   └── quantity
+│   └── ForeignKeys
+│       └── CompositeForeignKey        order_items.(order_id, tenant_id) → orders.(id, tenant_id)
+│
+├── RelationalSchemaWithSelfReferencingTable  (schema_with_self_referencing_table)
+│   ├── EmployeesTable
+│   │   ├── id
+│   │   ├── name
+│   │   ├── manager_id
+│   │   └── start_time
+│   └── ForeignKeys
+│       └── SelfReferencingForeignKey  employees.manager_id → employees.id
+│
+└── FullRelationalSchema                      (full_schema)
+    ├── EmptyTable
+    ├── SingleColumnTable
+    │   └── id
+    ├── TableWithoutIndexes
+    │   ├── id
+    │   ├── name
+    │   └── created_at
+    ├── TableWithSingleIndex
+    │   ├── id
+    │   └── name
+    ├── TableWithIndexes
+    │   ├── id
+    │   ├── tenant_id
+    │   ├── name
+    │   └── created_at
+    ├── AllColumnTypesTable
+    │   ├── id
+    │   ├── name
+    │   ├── age
+    │   ├── quantity
+    │   ├── price
+    │   ├── is_active
+    │   ├── birth_date
+    │   ├── start_time
+    │   ├── created_at
+    │   └── (empty name)
+    ├── UsersTable
+    │   ├── id
+    │   ├── tenant_id
+    │   ├── name
+    │   ├── birth_date
+    │   ├── is_active
+    │   └── created_at
+    ├── OrdersTable
+    │   ├── id
+    │   ├── tenant_id
+    │   ├── user_id
+    │   ├── price
+    │   └── created_at
+    ├── ProductsTable
+    │   ├── id
+    │   ├── name
+    │   ├── description
+    │   └── price
+    ├── OrderItemsTable
+    │   ├── id
+    │   ├── tenant_id
+    │   ├── order_id
+    │   ├── product_id
+    │   └── quantity
+    ├── EmployeesTable
+    │   ├── id
+    │   ├── name
+    │   ├── manager_id
+    │   └── start_time
+    └── ForeignKeys
+        ├── EmptyColumnsForeignKey          empty_table.() → single_column_table.()
+        ├── SingleColumnForeignKey          orders.user_id → users.id
+        ├── CompositeForeignKey             order_items.(order_id, tenant_id) → orders.(id, tenant_id)
+        ├── OrderItemsToProductsForeignKey  order_items.product_id → products.id
+        └── SelfReferencingForeignKey       employees.manager_id → employees.id
+```
+
 ## Schemas
 
 `namespace Pure.RelationalSchema.Samples.Schemas`
