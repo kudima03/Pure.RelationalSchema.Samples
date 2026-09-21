@@ -10,6 +10,8 @@ existing one is a breaking change and is released as such.
 
 ## [Unreleased]
 
+## [0.1.0-preview.1.0.0] - 2026-09-21
+
 ### Added
 
 - Full schema catalogue tree in the README, listing every sample schema with its
@@ -86,5 +88,6 @@ existing one is a breaking change and is released as such.
   CI-enforced line coverage and mutation score thresholds.
 - Multi-targeting for net7.0, net8.0, net9.0 and net10.0, AOT-compatible.
 
-[Unreleased]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.0.1.0...HEAD
+[Unreleased]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.1.0.0...HEAD
+[0.1.0-preview.1.0.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.0.1.0...0.1.0-preview.1.0.0
 [0.1.0-preview.0.1.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/releases/tag/0.1.0-preview.0.1.0
