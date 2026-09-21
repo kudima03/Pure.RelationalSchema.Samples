@@ -10,9 +10,9 @@ public sealed record SelfReferencingForeignKey : IForeignKey
 {
     public ITable ReferencingTable => new EmployeesTable();
 
-    public IEnumerable<IColumn> ReferencingColumns => [new ManagerIdColumn()];
+    public IEnumerable<IColumn> ReferencingColumns => [new EmployeeManagerIdColumn()];
 
     public ITable ReferencedTable => new EmployeesTable();
 
-    public IEnumerable<IColumn> ReferencedColumns => [new IdColumn()];
+    public IEnumerable<IColumn> ReferencedColumns => [new EmployeeIdColumn()];
 }

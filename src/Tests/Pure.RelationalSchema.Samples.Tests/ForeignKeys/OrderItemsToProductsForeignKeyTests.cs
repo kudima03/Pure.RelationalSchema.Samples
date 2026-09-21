@@ -49,24 +49,25 @@ public sealed record OrderItemsToProductsForeignKeyTests
     }
 
     [Fact]
-    public void ReferencingColumnsContainsProductIdColumn()
+    public void ReferencingColumnsContainsItemProductIdColumn()
     {
         IForeignKey foreignKey = new OrderItemsToProductsForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencingColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemProductIdColumn()))
         );
     }
 
     [Fact]
-    public void ReferencedColumnsContainsIdColumn()
+    public void ReferencedColumnsContainsProductIdColumn()
     {
         IForeignKey foreignKey = new OrderItemsToProductsForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencedColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductIdColumn()))
         );
     }
 }

@@ -14,12 +14,12 @@ public sealed record OrderItemsTable : ITable
 
     public IEnumerable<IColumn> Columns =>
         [
-            new IdColumn(),
-            new TenantIdColumn(),
-            new OrderIdColumn(),
-            new ProductIdColumn(),
-            new QuantityColumn(),
+            new ItemIdColumn(),
+            new ItemTenantIdColumn(),
+            new ItemOrderIdColumn(),
+            new ItemProductIdColumn(),
+            new ItemQtyColumn(),
         ];
 
-    public IEnumerable<IIndex> Indexes => [new SingleColumnUniqueIndex()];
+    public IEnumerable<IIndex> Indexes => [new OrderItemsPrimaryIndex()];
 }

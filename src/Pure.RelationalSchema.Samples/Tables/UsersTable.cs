@@ -14,14 +14,20 @@ public sealed record UsersTable : ITable
 
     public IEnumerable<IColumn> Columns =>
         [
-            new IdColumn(),
-            new TenantIdColumn(),
-            new NameColumn(),
-            new BirthDateColumn(),
-            new IsActiveColumn(),
-            new CreatedAtColumn(),
+            new UserIdColumn(),
+            new UserTenantIdColumn(),
+            new UserNameColumn(),
+            new SignupDateColumn(),
+            new UserActiveColumn(),
+            new LastLoginColumn(),
+            new UserAgeColumn(),
+            new ShiftStartColumn(),
+            new UserScoreColumn(),
+            new UserPrecisionValueColumn(),
+            new UserEdgeDateColumn(),
+            new UserEdgeDateTimeColumn(),
+            new UserEdgeTimeColumn(),
         ];
 
-    public IEnumerable<IIndex> Indexes =>
-        [new SingleColumnUniqueIndex(), new SingleColumnNonUniqueIndex()];
+    public IEnumerable<IIndex> Indexes => [new UsersPrimaryIndex(), new UsersNameIndex()];
 }

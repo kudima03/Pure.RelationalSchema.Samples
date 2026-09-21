@@ -17,11 +17,11 @@ public sealed record EmployeesTableTests
     }
 
     [Fact]
-    public void ColumnsCountIs4()
+    public void ColumnsCountIs5()
     {
         ITable table = new EmployeesTable();
 
-        Assert.Equal(4, table.Columns.Count());
+        Assert.Equal(5, table.Columns.Count());
     }
 
     [Fact]
@@ -33,60 +33,78 @@ public sealed record EmployeesTableTests
     }
 
     [Fact]
-    public void ColumnsContainsIdColumn()
+    public void ColumnsContainsEmployeeIdColumn()
     {
         ITable table = new EmployeesTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new EmployeeIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsNameColumn()
+    public void ColumnsContainsEmployeeNameColumn()
     {
         ITable table = new EmployeesTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new NameColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new EmployeeNameColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsManagerIdColumn()
+    public void ColumnsContainsEmployeeManagerIdColumn()
     {
         ITable table = new EmployeesTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ManagerIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new EmployeeManagerIdColumn())
+                )
         );
     }
 
     [Fact]
-    public void ColumnsContainsStartTimeColumn()
+    public void ColumnsContainsEmployeeShiftStartColumn()
     {
         ITable table = new EmployeesTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new StartTimeColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new EmployeeShiftStartColumn())
+                )
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnUniqueIndex()
+    public void ColumnsContainsEmployeeUserIdColumn()
+    {
+        ITable table = new EmployeesTable();
+
+        Assert.Contains(
+            table.Columns,
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new EmployeeUserIdColumn())
+                )
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsEmployeesPrimaryIndex()
     {
         ITable table = new EmployeesTable();
 
         Assert.Contains(
             table.Indexes,
             i =>
-                new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnUniqueIndex())
-                )
+                new IndexHash(i).SequenceEqual(new IndexHash(new EmployeesPrimaryIndex()))
         );
     }
 }

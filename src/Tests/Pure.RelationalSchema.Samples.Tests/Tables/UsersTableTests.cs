@@ -17,11 +17,11 @@ public sealed record UsersTableTests
     }
 
     [Fact]
-    public void ColumnsCountIs6()
+    public void ColumnsCountIs13()
     {
         ITable table = new UsersTable();
 
-        Assert.Equal(6, table.Columns.Count());
+        Assert.Equal(13, table.Columns.Count());
     }
 
     [Fact]
@@ -33,96 +33,173 @@ public sealed record UsersTableTests
     }
 
     [Fact]
-    public void ColumnsContainsIdColumn()
+    public void ColumnsContainsUserIdColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsTenantIdColumn()
+    public void ColumnsContainsUserTenantIdColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new TenantIdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserTenantIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsNameColumn()
+    public void ColumnsContainsUserNameColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new NameColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserNameColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsBirthDateColumn()
+    public void ColumnsContainsSignupDateColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new BirthDateColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new SignupDateColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsIsActiveColumn()
+    public void ColumnsContainsUserActiveColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IsActiveColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserActiveColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsCreatedAtColumn()
+    public void ColumnsContainsLastLoginColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new CreatedAtColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new LastLoginColumn()))
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnUniqueIndex()
+    public void ColumnsContainsUserAgeColumn()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
-            table.Indexes,
-            i =>
-                new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnUniqueIndex())
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserAgeColumn()))
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsShiftStartColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ShiftStartColumn()))
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsUserScoreColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserScoreColumn()))
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsUserPrecisionValueColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new UserPrecisionValueColumn())
                 )
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnNonUniqueIndex()
+    public void ColumnsContainsUserEdgeDateColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserEdgeDateColumn()))
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsUserEdgeDateTimeColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new UserEdgeDateTimeColumn())
+                )
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsUserEdgeTimeColumn()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserEdgeTimeColumn()))
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsUsersPrimaryIndex()
     {
         ITable table = new UsersTable();
 
         Assert.Contains(
             table.Indexes,
-            i =>
-                new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnNonUniqueIndex())
-                )
+            i => new IndexHash(i).SequenceEqual(new IndexHash(new UsersPrimaryIndex()))
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsUsersNameIndex()
+    {
+        ITable table = new UsersTable();
+
+        Assert.Contains(
+            table.Indexes,
+            i => new IndexHash(i).SequenceEqual(new IndexHash(new UsersNameIndex()))
         );
     }
 }

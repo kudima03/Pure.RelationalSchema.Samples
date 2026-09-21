@@ -17,11 +17,11 @@ public sealed record ProductsTableTests
     }
 
     [Fact]
-    public void ColumnsCountIs4()
+    public void ColumnsCountIs5()
     {
         ITable table = new ProductsTable();
 
-        Assert.Equal(4, table.Columns.Count());
+        Assert.Equal(5, table.Columns.Count());
     }
 
     [Fact]
@@ -33,60 +33,74 @@ public sealed record ProductsTableTests
     }
 
     [Fact]
-    public void ColumnsContainsIdColumn()
+    public void ColumnsContainsProductIdColumn()
     {
         ITable table = new ProductsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsNameColumn()
+    public void ColumnsContainsProductNameColumn()
     {
         ITable table = new ProductsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new NameColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductNameColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsDescriptionColumn()
+    public void ColumnsContainsProductDescriptionColumn()
     {
         ITable table = new ProductsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new DescriptionColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new ProductDescriptionColumn())
+                )
         );
     }
 
     [Fact]
-    public void ColumnsContainsPriceColumn()
+    public void ColumnsContainsProductPriceColumn()
     {
         ITable table = new ProductsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new PriceColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductPriceColumn()))
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnUniqueIndex()
+    public void ColumnsContainsProductInStockColumn()
+    {
+        ITable table = new ProductsTable();
+
+        Assert.Contains(
+            table.Columns,
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new ProductInStockColumn())
+                )
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsProductsPrimaryIndex()
     {
         ITable table = new ProductsTable();
 
         Assert.Contains(
             table.Indexes,
-            i =>
-                new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnUniqueIndex())
-                )
+            i => new IndexHash(i).SequenceEqual(new IndexHash(new ProductsPrimaryIndex()))
         );
     }
 }

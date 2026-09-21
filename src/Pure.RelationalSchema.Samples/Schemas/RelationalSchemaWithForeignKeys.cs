@@ -12,7 +12,22 @@ public sealed record RelationalSchemaWithForeignKeys : ISchema
 {
     public IString Name => new String("schema_with_foreign_keys");
 
-    public IEnumerable<ITable> Tables => [new UsersTable(), new OrdersTable()];
+    public IEnumerable<ITable> Tables =>
+        [
+            new UsersTable(),
+            new OrdersTable(),
+            new ProductsTable(),
+            new OrderItemsTable(),
+            new EmployeesTable(),
+        ];
 
-    public IEnumerable<IForeignKey> ForeignKeys => [new SingleColumnForeignKey()];
+    public IEnumerable<IForeignKey> ForeignKeys =>
+        [
+            new SingleColumnForeignKey(),
+            new CompositeForeignKey(),
+            new OrderItemsToProductsForeignKey(),
+            new SelfReferencingForeignKey(),
+            new EmployeesToUsersForeignKey(),
+            new OrdersToStatusesForeignKey(),
+        ];
 }

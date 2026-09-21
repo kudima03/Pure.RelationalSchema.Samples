@@ -49,24 +49,27 @@ public sealed record SelfReferencingForeignKeyTests
     }
 
     [Fact]
-    public void ReferencingColumnsContainsManagerIdColumn()
+    public void ReferencingColumnsContainsEmployeeManagerIdColumn()
     {
         IForeignKey foreignKey = new SelfReferencingForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencingColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ManagerIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(
+                    new ColumnHash(new EmployeeManagerIdColumn())
+                )
         );
     }
 
     [Fact]
-    public void ReferencedColumnsContainsIdColumn()
+    public void ReferencedColumnsContainsEmployeeIdColumn()
     {
         IForeignKey foreignKey = new SelfReferencingForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencedColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new EmployeeIdColumn()))
         );
     }
 }

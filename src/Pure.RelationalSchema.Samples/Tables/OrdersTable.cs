@@ -14,13 +14,15 @@ public sealed record OrdersTable : ITable
 
     public IEnumerable<IColumn> Columns =>
         [
-            new IdColumn(),
-            new TenantIdColumn(),
-            new UserIdColumn(),
-            new PriceColumn(),
-            new CreatedAtColumn(),
+            new OrderIdColumn(),
+            new OrderTenantIdColumn(),
+            new OrderUserIdColumn(),
+            new OrderTotalColumn(),
+            new PlacedAtColumn(),
+            new OrderStatusColumn(),
+            new PlacedOnColumn(),
         ];
 
     public IEnumerable<IIndex> Indexes =>
-        [new SingleColumnUniqueIndex(), new CompositeUniqueIndex()];
+        [new OrdersPrimaryIndex(), new OrdersTenantUniqueIndex()];
 }

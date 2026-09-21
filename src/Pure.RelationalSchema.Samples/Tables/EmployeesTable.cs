@@ -13,7 +13,13 @@ public sealed record EmployeesTable : ITable
     public IString Name => new String("employees");
 
     public IEnumerable<IColumn> Columns =>
-        [new IdColumn(), new NameColumn(), new ManagerIdColumn(), new StartTimeColumn()];
+        [
+            new EmployeeIdColumn(),
+            new EmployeeNameColumn(),
+            new EmployeeManagerIdColumn(),
+            new EmployeeShiftStartColumn(),
+            new EmployeeUserIdColumn(),
+        ];
 
-    public IEnumerable<IIndex> Indexes => [new SingleColumnUniqueIndex()];
+    public IEnumerable<IIndex> Indexes => [new EmployeesPrimaryIndex()];
 }
