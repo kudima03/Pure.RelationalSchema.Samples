@@ -18,7 +18,6 @@ existing one is a breaking change and is released as such.
 
 ### Changed
 
-- Solution migrated from `.sln` to the `.slnx` format.
 - Package validation enabled against baseline `0.1.0-preview.0.1.0`, so breaking API
   changes fail the build.
 
@@ -37,12 +36,12 @@ existing one is a breaking change and is released as such.
     variants, plus a duplicate-column index.
   - `Tables` — empty, empty-name, single-column, indexed and all-column-types tables,
     plus the `users`, `orders`, `products`, `order_items` and `employees` domain set.
-  - `ForeignKeys` — empty-columns, single-column, composite and self-referencing
-    foreign keys.
+  - `ForeignKeys` — empty-columns, single-column, composite, self-referencing and
+    `order_items` → `products` foreign keys.
   - `Schemas` — graded from `EmptyRelationalSchema` through index, column-type and
     foreign-key variants to `FullRelationalSchema`.
-- xUnit test project asserting every sample by structural hash, at 100% line coverage
-  and 100% mutation score.
+- xUnit test project asserting every sample by structural hash, meeting the
+  CI-enforced line coverage and mutation score thresholds.
 - Multi-targeting for net7.0, net8.0, net9.0 and net10.0, AOT-compatible.
 
 [Unreleased]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.0.1.0...HEAD
