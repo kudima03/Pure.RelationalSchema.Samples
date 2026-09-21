@@ -11,10 +11,10 @@ public sealed record CompositeForeignKey : IForeignKey
     public ITable ReferencingTable => new OrderItemsTable();
 
     public IEnumerable<IColumn> ReferencingColumns =>
-        [new OrderIdColumn(), new TenantIdColumn()];
+        [new ItemOrderIdColumn(), new ItemTenantIdColumn()];
 
     public ITable ReferencedTable => new OrdersTable();
 
     public IEnumerable<IColumn> ReferencedColumns =>
-        [new IdColumn(), new TenantIdColumn()];
+        [new OrderIdColumn(), new OrderTenantIdColumn()];
 }

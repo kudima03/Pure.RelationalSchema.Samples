@@ -25,6 +25,8 @@ public sealed record FullRelationalSchema : ISchema
             new ProductsTable(),
             new OrderItemsTable(),
             new EmployeesTable(),
+            new LoginsTable(),
+            new StatusesTable(),
         ];
 
     public IEnumerable<IForeignKey> ForeignKeys =>
@@ -34,5 +36,8 @@ public sealed record FullRelationalSchema : ISchema
             new CompositeForeignKey(),
             new OrderItemsToProductsForeignKey(),
             new SelfReferencingForeignKey(),
+            new LoginsToUsersForeignKey(),
+            new OrdersToStatusesForeignKey(),
+            new EmployeesToUsersForeignKey(),
         ];
 }

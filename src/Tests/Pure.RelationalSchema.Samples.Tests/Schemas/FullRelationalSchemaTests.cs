@@ -17,19 +17,19 @@ public sealed record FullRelationalSchemaTests
     }
 
     [Fact]
-    public void TablesCountIs11()
+    public void TablesCountIs13()
     {
         ISchema schema = new FullRelationalSchema();
 
-        Assert.Equal(11, schema.Tables.Count());
+        Assert.Equal(13, schema.Tables.Count());
     }
 
     [Fact]
-    public void ForeignKeysCountIs5()
+    public void ForeignKeysCountIs8()
     {
         ISchema schema = new FullRelationalSchema();
 
-        Assert.Equal(5, schema.ForeignKeys.Count());
+        Assert.Equal(8, schema.ForeignKeys.Count());
     }
 
     [Fact]
@@ -154,6 +154,28 @@ public sealed record FullRelationalSchemaTests
     }
 
     [Fact]
+    public void TablesContainsLoginsTable()
+    {
+        ISchema schema = new FullRelationalSchema();
+
+        Assert.Contains(
+            schema.Tables,
+            t => new TableHash(t).SequenceEqual(new TableHash(new LoginsTable()))
+        );
+    }
+
+    [Fact]
+    public void TablesContainsStatusesTable()
+    {
+        ISchema schema = new FullRelationalSchema();
+
+        Assert.Contains(
+            schema.Tables,
+            t => new TableHash(t).SequenceEqual(new TableHash(new StatusesTable()))
+        );
+    }
+
+    [Fact]
     public void ForeignKeysContainsEmptyColumnsForeignKey()
     {
         ISchema schema = new FullRelationalSchema();
@@ -219,6 +241,48 @@ public sealed record FullRelationalSchemaTests
             f =>
                 new ForeignKeyHash(f).SequenceEqual(
                     new ForeignKeyHash(new SelfReferencingForeignKey())
+                )
+        );
+    }
+
+    [Fact]
+    public void ForeignKeysContainsLoginsToUsersForeignKey()
+    {
+        ISchema schema = new FullRelationalSchema();
+
+        Assert.Contains(
+            schema.ForeignKeys,
+            f =>
+                new ForeignKeyHash(f).SequenceEqual(
+                    new ForeignKeyHash(new LoginsToUsersForeignKey())
+                )
+        );
+    }
+
+    [Fact]
+    public void ForeignKeysContainsOrdersToStatusesForeignKey()
+    {
+        ISchema schema = new FullRelationalSchema();
+
+        Assert.Contains(
+            schema.ForeignKeys,
+            f =>
+                new ForeignKeyHash(f).SequenceEqual(
+                    new ForeignKeyHash(new OrdersToStatusesForeignKey())
+                )
+        );
+    }
+
+    [Fact]
+    public void ForeignKeysContainsEmployeesToUsersForeignKey()
+    {
+        ISchema schema = new FullRelationalSchema();
+
+        Assert.Contains(
+            schema.ForeignKeys,
+            f =>
+                new ForeignKeyHash(f).SequenceEqual(
+                    new ForeignKeyHash(new EmployeesToUsersForeignKey())
                 )
         );
     }

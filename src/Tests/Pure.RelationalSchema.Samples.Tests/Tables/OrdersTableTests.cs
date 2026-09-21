@@ -17,11 +17,11 @@ public sealed record OrdersTableTests
     }
 
     [Fact]
-    public void ColumnsCountIs5()
+    public void ColumnsCountIs7()
     {
         ITable table = new OrdersTable();
 
-        Assert.Equal(5, table.Columns.Count());
+        Assert.Equal(7, table.Columns.Count());
     }
 
     [Fact]
@@ -33,62 +33,96 @@ public sealed record OrdersTableTests
     }
 
     [Fact]
-    public void ColumnsContainsIdColumn()
+    public void ColumnsContainsOrderIdColumn()
     {
         ITable table = new OrdersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsTenantIdColumn()
+    public void ColumnsContainsOrderTenantIdColumn()
     {
         ITable table = new OrdersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new TenantIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderTenantIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsUserIdColumn()
+    public void ColumnsContainsOrderUserIdColumn()
     {
         ITable table = new OrdersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new UserIdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderUserIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsPriceColumn()
+    public void ColumnsContainsOrderTotalColumn()
     {
         ITable table = new OrdersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new PriceColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderTotalColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsCreatedAtColumn()
+    public void ColumnsContainsPlacedAtColumn()
     {
         ITable table = new OrdersTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new CreatedAtColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new PlacedAtColumn()))
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnUniqueIndex()
+    public void ColumnsContainsOrderStatusColumn()
+    {
+        ITable table = new OrdersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderStatusColumn()))
+        );
+    }
+
+    [Fact]
+    public void ColumnsContainsPlacedOnColumn()
+    {
+        ITable table = new OrdersTable();
+
+        Assert.Contains(
+            table.Columns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new PlacedOnColumn()))
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsOrdersPrimaryIndex()
+    {
+        ITable table = new OrdersTable();
+
+        Assert.Contains(
+            table.Indexes,
+            i => new IndexHash(i).SequenceEqual(new IndexHash(new OrdersPrimaryIndex()))
+        );
+    }
+
+    [Fact]
+    public void IndexesContainsOrdersTenantUniqueIndex()
     {
         ITable table = new OrdersTable();
 
@@ -96,19 +130,8 @@ public sealed record OrdersTableTests
             table.Indexes,
             i =>
                 new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnUniqueIndex())
+                    new IndexHash(new OrdersTenantUniqueIndex())
                 )
-        );
-    }
-
-    [Fact]
-    public void IndexesContainsCompositeUniqueIndex()
-    {
-        ITable table = new OrdersTable();
-
-        Assert.Contains(
-            table.Indexes,
-            i => new IndexHash(i).SequenceEqual(new IndexHash(new CompositeUniqueIndex()))
         );
     }
 }

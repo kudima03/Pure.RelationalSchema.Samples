@@ -13,7 +13,13 @@ public sealed record ProductsTable : ITable
     public IString Name => new String("products");
 
     public IEnumerable<IColumn> Columns =>
-        [new IdColumn(), new NameColumn(), new DescriptionColumn(), new PriceColumn()];
+        [
+            new ProductIdColumn(),
+            new ProductNameColumn(),
+            new ProductDescriptionColumn(),
+            new ProductPriceColumn(),
+            new ProductInStockColumn(),
+        ];
 
-    public IEnumerable<IIndex> Indexes => [new SingleColumnUniqueIndex()];
+    public IEnumerable<IIndex> Indexes => [new ProductsPrimaryIndex()];
 }

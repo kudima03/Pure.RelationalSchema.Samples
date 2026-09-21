@@ -33,62 +33,63 @@ public sealed record OrderItemsTableTests
     }
 
     [Fact]
-    public void ColumnsContainsIdColumn()
+    public void ColumnsContainsItemIdColumn()
     {
         ITable table = new OrderItemsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsTenantIdColumn()
+    public void ColumnsContainsItemTenantIdColumn()
     {
         ITable table = new OrderItemsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new TenantIdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemTenantIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsOrderIdColumn()
+    public void ColumnsContainsItemOrderIdColumn()
     {
         ITable table = new OrderItemsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderIdColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemOrderIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsProductIdColumn()
+    public void ColumnsContainsItemProductIdColumn()
     {
         ITable table = new OrderItemsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ProductIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemProductIdColumn()))
         );
     }
 
     [Fact]
-    public void ColumnsContainsQuantityColumn()
+    public void ColumnsContainsItemQtyColumn()
     {
         ITable table = new OrderItemsTable();
 
         Assert.Contains(
             table.Columns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new QuantityColumn()))
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemQtyColumn()))
         );
     }
 
     [Fact]
-    public void IndexesContainsSingleColumnUniqueIndex()
+    public void IndexesContainsOrderItemsPrimaryIndex()
     {
         ITable table = new OrderItemsTable();
 
@@ -96,7 +97,7 @@ public sealed record OrderItemsTableTests
             table.Indexes,
             i =>
                 new IndexHash(i).SequenceEqual(
-                    new IndexHash(new SingleColumnUniqueIndex())
+                    new IndexHash(new OrderItemsPrimaryIndex())
                 )
         );
     }

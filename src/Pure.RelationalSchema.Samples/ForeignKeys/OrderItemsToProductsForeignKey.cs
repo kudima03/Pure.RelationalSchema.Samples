@@ -10,9 +10,9 @@ public sealed record OrderItemsToProductsForeignKey : IForeignKey
 {
     public ITable ReferencingTable => new OrderItemsTable();
 
-    public IEnumerable<IColumn> ReferencingColumns => [new ProductIdColumn()];
+    public IEnumerable<IColumn> ReferencingColumns => [new ItemProductIdColumn()];
 
     public ITable ReferencedTable => new ProductsTable();
 
-    public IEnumerable<IColumn> ReferencedColumns => [new IdColumn()];
+    public IEnumerable<IColumn> ReferencedColumns => [new ProductIdColumn()];
 }

@@ -20,12 +20,49 @@ The catalogue is graded from trivial to full-set, so a consumer can pick the exa
 | Several tables, no relations | `RelationalSchemaWithoutForeignKeys` |
 | Unique, non-unique and composite indexes | `RelationalSchemaWithIndexes` |
 | Every column type in one table | `RelationalSchemaWithAllColumnTypes` |
-| A single-column relation | `RelationalSchemaWithForeignKeys` |
+| A query-grade domain, joined by foreign keys | `RelationalSchemaWithForeignKeys` |
 | A multi-column relation | `RelationalSchemaWithCompositeForeignKey` |
 | A table referencing itself | `RelationalSchemaWithSelfReferencingTable` |
+| A domain referenced from another schema (uuid key, inbound) | `AuditRelationalSchema` |
+| A domain referenced by another schema (string key, outbound) | `RefsRelationalSchema` |
 | Everything at once | `FullRelationalSchema` |
 
 Because samples are ordinary `ISchema`/`ITable`/`IColumn`/`IIndex`/`IForeignKey` implementations, they compose with the rest of the ecosystem — hashing, serialization, OpenAPI schemas, storage adapters and conditions — without any adapter code.
+
+### Query-grade domains
+
+`schema_with_foreign_keys`, `audit` and `refs` are the **query-grade** schemas: every column on every relation they hold is readable by a projection (`bool`, `date`, `datetime`, `double`, `string`, `time`, `uuid` — never `int`/`long`), and every column name is globally unique across all seven domain relations, so a cross-domain query never needs to qualify a bare field reference. The three schemas are joined by foreign keys crossing schema boundaries in both directions and on both key shapes a query engine can meet:
+
+| Domain | Schema | Relation | Crossing edge | Join key type |
+|---|---|---|---|---|
+| core | `schema_with_foreign_keys` | `users`, `orders`, `products`, `order_items`, `employees` | — | — |
+| audit | `audit` | `logins` | `logins.login_user_id` → `users.user_id` | uuid, inbound |
+| refs | `refs` | `statuses` | `orders.order_status` → `statuses.status_code` | string, outbound |
+
+`FullRelationalSchema` is the exhaustive fixture — it holds both the query-grade domain relations and the generic shape tables (`EmptyTable`, `SingleColumnTable`, `TableWithoutIndexes`, `TableWithSingleIndex`, `TableWithIndexes`, `AllColumnTypesTable`), so it is the one schema where `id`, `name`, `created_at` and `tenant_id` are deliberately ambiguous across relations. It is never a qualifier for a cross-domain query — use `schema_with_foreign_keys`, `audit` or `refs` for that.
+
+### Domains
+
+Each domain relation has exactly one home schema — the schema a cross-domain query qualifies it with. A relation may also appear in other sample schemas (`users` is also in `FullRelationalSchema`), but only its home is unambiguous:
+
+| Relation | Home schema |
+|---|---|
+| `users`, `orders`, `products`, `order_items`, `employees` | `schema_with_foreign_keys` |
+| `logins` | `audit` |
+| `statuses` | `refs` |
+
+### The join graph
+
+Every domain relation is reachable from every other by following foreign keys in either direction; the longest cross-domain path touches all three schemas in three hops (`audit.logins` → `users` ← `orders` → `refs.statuses`):
+
+```
+        audit.logins ──login_user_id──┐
+                                      ▼
+  employees ──employee_user_id──▶  users  ◀──order_user_id── orders ──order_status──▶ refs.statuses
+      │                                                        ▲
+      └─manager_id─┘ (self)                                    │ (order_id, order_tenant_id)
+                                                          order_items ──item_product_id──▶ products
+```
 
 ## Schema Catalogue
 
@@ -69,47 +106,81 @@ Pure.RelationalSchema.Samples.Schemas/
 │       ├── created_at
 │       └── (empty name)
 │
-├── RelationalSchemaWithForeignKeys           (schema_with_foreign_keys)
-│   ├── UsersTable
-│   │   ├── id
-│   │   ├── tenant_id
-│   │   ├── name
-│   │   ├── birth_date
-│   │   ├── is_active
-│   │   └── created_at
-│   ├── OrdersTable
-│   │   ├── id
-│   │   ├── tenant_id
+├── RelationalSchemaWithForeignKeys           (schema_with_foreign_keys)  ← core domain, query-grade
+│   ├── UsersTable       users        13 cols   all seven readable types
 │   │   ├── user_id
-│   │   ├── price
-│   │   └── created_at
+│   │   ├── user_tenant_id
+│   │   ├── user_name
+│   │   ├── signup_date
+│   │   ├── user_active
+│   │   ├── last_login
+│   │   ├── user_age
+│   │   ├── shift_start
+│   │   ├── user_score
+│   │   ├── user_precision_value
+│   │   ├── user_edge_date
+│   │   ├── user_edge_datetime
+│   │   └── user_edge_time
+│   ├── OrdersTable       orders        7 cols
+│   │   ├── order_id
+│   │   ├── order_tenant_id
+│   │   ├── order_user_id
+│   │   ├── order_total
+│   │   ├── placed_at
+│   │   ├── order_status
+│   │   └── placed_on
+│   ├── ProductsTable     products      5 cols
+│   │   ├── product_id
+│   │   ├── product_name
+│   │   ├── product_description
+│   │   ├── product_price
+│   │   └── product_in_stock
+│   ├── OrderItemsTable   order_items   5 cols
+│   │   ├── item_id
+│   │   ├── item_tenant_id
+│   │   ├── item_order_id
+│   │   ├── item_product_id
+│   │   └── item_qty
+│   ├── EmployeesTable    employees     5 cols
+│   │   ├── employee_id
+│   │   ├── employee_name
+│   │   ├── employee_manager_id
+│   │   ├── employee_shift_start
+│   │   └── employee_user_id
 │   └── ForeignKeys
-│       └── SingleColumnForeignKey    orders.user_id → users.id
+│       ├── SingleColumnForeignKey           orders.order_user_id → users.user_id
+│       ├── CompositeForeignKey              order_items.(item_order_id, item_tenant_id)
+│       │                                      → orders.(order_id, order_tenant_id)
+│       ├── OrderItemsToProductsForeignKey   order_items.item_product_id → products.product_id
+│       ├── SelfReferencingForeignKey        employees.employee_manager_id → employees.employee_id
+│       ├── EmployeesToUsersForeignKey       employees.employee_user_id → users.user_id
+│       └── OrdersToStatusesForeignKey       orders.order_status → statuses.status_code   ← cross-domain, string key
 │
 ├── RelationalSchemaWithCompositeForeignKey   (schema_with_composite_foreign_key)
-│   ├── OrdersTable
-│   │   ├── id
-│   │   ├── tenant_id
-│   │   ├── user_id
-│   │   ├── price
-│   │   └── created_at
-│   ├── OrderItemsTable
-│   │   ├── id
-│   │   ├── tenant_id
-│   │   ├── order_id
-│   │   ├── product_id
-│   │   └── quantity
+│   ├── OrdersTable       orders        7 cols   (see above)
+│   ├── OrderItemsTable   order_items   5 cols   (see above)
 │   └── ForeignKeys
-│       └── CompositeForeignKey        order_items.(order_id, tenant_id) → orders.(id, tenant_id)
+│       └── CompositeForeignKey        order_items.(item_order_id, item_tenant_id)
+│                                         → orders.(order_id, order_tenant_id)
 │
 ├── RelationalSchemaWithSelfReferencingTable  (schema_with_self_referencing_table)
-│   ├── EmployeesTable
-│   │   ├── id
-│   │   ├── name
-│   │   ├── manager_id
-│   │   └── start_time
+│   ├── EmployeesTable    employees     5 cols   (see above)
 │   └── ForeignKeys
-│       └── SelfReferencingForeignKey  employees.manager_id → employees.id
+│       └── SelfReferencingForeignKey  employees.employee_manager_id → employees.employee_id
+│
+├── AuditRelationalSchema                      (audit)   ← audit domain
+│   └── LoginsTable       logins        3 cols
+│       ├── login_id
+│       ├── login_user_id
+│       └── login_at
+│       └── ForeignKeys
+│           └── LoginsToUsersForeignKey   logins.login_user_id → users.user_id   ← cross-domain, uuid key
+│
+├── RefsRelationalSchema                       (refs)   ← refs domain, referenced only
+│   └── StatusesTable     statuses      3 cols
+│       ├── status_code
+│       ├── status_label
+│       └── status_is_final
 │
 └── FullRelationalSchema                      (full_schema)
     ├── EmptyTable
@@ -138,41 +209,23 @@ Pure.RelationalSchema.Samples.Schemas/
     │   ├── start_time
     │   ├── created_at
     │   └── (empty name)
-    ├── UsersTable
-    │   ├── id
-    │   ├── tenant_id
-    │   ├── name
-    │   ├── birth_date
-    │   ├── is_active
-    │   └── created_at
-    ├── OrdersTable
-    │   ├── id
-    │   ├── tenant_id
-    │   ├── user_id
-    │   ├── price
-    │   └── created_at
-    ├── ProductsTable
-    │   ├── id
-    │   ├── name
-    │   ├── description
-    │   └── price
-    ├── OrderItemsTable
-    │   ├── id
-    │   ├── tenant_id
-    │   ├── order_id
-    │   ├── product_id
-    │   └── quantity
-    ├── EmployeesTable
-    │   ├── id
-    │   ├── name
-    │   ├── manager_id
-    │   └── start_time
+    ├── UsersTable        users         13 cols   (see above)
+    ├── OrdersTable       orders         7 cols   (see above)
+    ├── ProductsTable     products       5 cols   (see above)
+    ├── OrderItemsTable   order_items    5 cols   (see above)
+    ├── EmployeesTable    employees      5 cols   (see above)
+    ├── LoginsTable       logins         3 cols   (see above)
+    ├── StatusesTable     statuses       3 cols   (see above)
     └── ForeignKeys
         ├── EmptyColumnsForeignKey          empty_table.() → single_column_table.()
-        ├── SingleColumnForeignKey          orders.user_id → users.id
-        ├── CompositeForeignKey             order_items.(order_id, tenant_id) → orders.(id, tenant_id)
-        ├── OrderItemsToProductsForeignKey  order_items.product_id → products.id
-        └── SelfReferencingForeignKey       employees.manager_id → employees.id
+        ├── SingleColumnForeignKey          orders.order_user_id → users.user_id
+        ├── CompositeForeignKey             order_items.(item_order_id, item_tenant_id)
+        │                                     → orders.(order_id, order_tenant_id)
+        ├── OrderItemsToProductsForeignKey  order_items.item_product_id → products.product_id
+        ├── SelfReferencingForeignKey       employees.employee_manager_id → employees.employee_id
+        ├── LoginsToUsersForeignKey         logins.login_user_id → users.user_id
+        ├── OrdersToStatusesForeignKey      orders.order_status → statuses.status_code
+        └── EmployeesToUsersForeignKey      employees.employee_user_id → users.user_id
 ```
 
 ## Schemas
@@ -186,10 +239,12 @@ Pure.RelationalSchema.Samples.Schemas/
 | `RelationalSchemaWithoutForeignKeys` | `schema_without_foreign_keys` | 3 | 0 |
 | `RelationalSchemaWithIndexes` | `schema_with_indexes` | 2 | 0 |
 | `RelationalSchemaWithAllColumnTypes` | `schema_with_all_column_types` | 1 | 0 |
-| `RelationalSchemaWithForeignKeys` | `schema_with_foreign_keys` | 2 | 1 |
+| `RelationalSchemaWithForeignKeys` | `schema_with_foreign_keys` | 5 | 6 |
 | `RelationalSchemaWithCompositeForeignKey` | `schema_with_composite_foreign_key` | 2 | 1 |
 | `RelationalSchemaWithSelfReferencingTable` | `schema_with_self_referencing_table` | 1 | 1 |
-| `FullRelationalSchema` | `full_schema` | 11 | 5 |
+| `AuditRelationalSchema` | `audit` | 1 | 1 |
+| `RefsRelationalSchema` | `refs` | 1 | 0 |
+| `FullRelationalSchema` | `full_schema` | 13 | 8 |
 
 ## Tables
 
@@ -204,11 +259,13 @@ Pure.RelationalSchema.Samples.Schemas/
 | `TableWithSingleIndex` | `table_with_single_index` | 2 | 1 |
 | `TableWithIndexes` | `table_with_indexes` | 4 | 4 |
 | `AllColumnTypesTable` | `all_column_types_table` | 10 | 0 |
-| `UsersTable` | `users` | 6 | 2 |
-| `OrdersTable` | `orders` | 5 | 2 |
-| `ProductsTable` | `products` | 4 | 1 |
+| `UsersTable` | `users` | 13 | 2 |
+| `OrdersTable` | `orders` | 7 | 2 |
+| `ProductsTable` | `products` | 5 | 1 |
 | `OrderItemsTable` | `order_items` | 5 | 1 |
-| `EmployeesTable` | `employees` | 4 | 1 |
+| `EmployeesTable` | `employees` | 5 | 1 |
+| `LoginsTable` | `logins` | 3 | 0 |
+| `StatusesTable` | `statuses` | 3 | 0 |
 
 ## Foreign Keys
 
@@ -217,10 +274,13 @@ Pure.RelationalSchema.Samples.Schemas/
 | Class | Referencing | Referenced |
 |---|---|---|
 | `EmptyColumnsForeignKey` | `empty_table` *(no columns)* | `single_column_table` *(no columns)* |
-| `SingleColumnForeignKey` | `orders.user_id` | `users.id` |
-| `CompositeForeignKey` | `order_items.order_id`, `order_items.tenant_id` | `orders.id`, `orders.tenant_id` |
-| `SelfReferencingForeignKey` | `employees.manager_id` | `employees.id` |
-| `OrderItemsToProductsForeignKey` | `order_items.product_id` | `products.id` |
+| `SingleColumnForeignKey` | `orders.order_user_id` | `users.user_id` |
+| `CompositeForeignKey` | `order_items.item_order_id`, `order_items.item_tenant_id` | `orders.order_id`, `orders.order_tenant_id` |
+| `SelfReferencingForeignKey` | `employees.employee_manager_id` | `employees.employee_id` |
+| `OrderItemsToProductsForeignKey` | `order_items.item_product_id` | `products.product_id` |
+| `LoginsToUsersForeignKey` | `logins.login_user_id` | `users.user_id` |
+| `OrdersToStatusesForeignKey` | `orders.order_status` | `statuses.status_code` |
+| `EmployeesToUsersForeignKey` | `employees.employee_user_id` | `users.user_id` |
 
 ## Indexes
 
@@ -235,6 +295,13 @@ Pure.RelationalSchema.Samples.Schemas/
 | `CompositeUniqueIndex` | yes | `tenant_id`, `id` |
 | `CompositeNonUniqueIndex` | no | `name`, `created_at` |
 | `DuplicateColumnsIndex` | no | `id`, `id` |
+| `UsersPrimaryIndex` | yes | `user_id` |
+| `UsersNameIndex` | no | `user_name` |
+| `OrdersPrimaryIndex` | yes | `order_id` |
+| `OrdersTenantUniqueIndex` | yes | `order_tenant_id`, `order_id` |
+| `ProductsPrimaryIndex` | yes | `product_id` |
+| `OrderItemsPrimaryIndex` | yes | `item_id` |
+| `EmployeesPrimaryIndex` | yes | `employee_id` |
 
 ## Columns
 
@@ -258,6 +325,44 @@ Pure.RelationalSchema.Samples.Schemas/
 | `ManagerIdColumn` | `manager_id` | `UuidColumnType` |
 | `TenantIdColumn` | `tenant_id` | `UuidColumnType` |
 | `EmptyNameColumn` | *(empty string)* | `EmptyNameColumnType` |
+| `UserTenantIdColumn` | `user_tenant_id` | `UuidColumnType` |
+| `UserNameColumn` | `user_name` | `StringColumnType` |
+| `UserAgeColumn` | `user_age` | `DoubleColumnType` |
+| `UserActiveColumn` | `user_active` | `BoolColumnType` |
+| `SignupDateColumn` | `signup_date` | `DateColumnType` |
+| `LastLoginColumn` | `last_login` | `DateTimeColumnType` |
+| `ShiftStartColumn` | `shift_start` | `TimeColumnType` |
+| `UserScoreColumn` | `user_score` | `DoubleColumnType` |
+| `UserPrecisionValueColumn` | `user_precision_value` | `DoubleColumnType` |
+| `UserEdgeDateColumn` | `user_edge_date` | `DateColumnType` |
+| `UserEdgeDateTimeColumn` | `user_edge_datetime` | `DateTimeColumnType` |
+| `UserEdgeTimeColumn` | `user_edge_time` | `TimeColumnType` |
+| `OrderTenantIdColumn` | `order_tenant_id` | `UuidColumnType` |
+| `OrderUserIdColumn` | `order_user_id` | `UuidColumnType` |
+| `OrderTotalColumn` | `order_total` | `DoubleColumnType` |
+| `OrderStatusColumn` | `order_status` | `StringColumnType` |
+| `PlacedAtColumn` | `placed_at` | `DateTimeColumnType` |
+| `PlacedOnColumn` | `placed_on` | `DateColumnType` |
+| `ProductNameColumn` | `product_name` | `StringColumnType` |
+| `ProductDescriptionColumn` | `product_description` | `StringColumnType` |
+| `ProductPriceColumn` | `product_price` | `DoubleColumnType` |
+| `ProductInStockColumn` | `product_in_stock` | `BoolColumnType` |
+| `ItemIdColumn` | `item_id` | `UuidColumnType` |
+| `ItemTenantIdColumn` | `item_tenant_id` | `UuidColumnType` |
+| `ItemOrderIdColumn` | `item_order_id` | `UuidColumnType` |
+| `ItemProductIdColumn` | `item_product_id` | `UuidColumnType` |
+| `ItemQtyColumn` | `item_qty` | `DoubleColumnType` |
+| `EmployeeIdColumn` | `employee_id` | `UuidColumnType` |
+| `EmployeeNameColumn` | `employee_name` | `StringColumnType` |
+| `EmployeeManagerIdColumn` | `employee_manager_id` | `UuidColumnType` |
+| `EmployeeShiftStartColumn` | `employee_shift_start` | `TimeColumnType` |
+| `EmployeeUserIdColumn` | `employee_user_id` | `UuidColumnType` |
+| `LoginIdColumn` | `login_id` | `UuidColumnType` |
+| `LoginUserIdColumn` | `login_user_id` | `UuidColumnType` |
+| `LoginAtColumn` | `login_at` | `DateTimeColumnType` |
+| `StatusCodeColumn` | `status_code` | `StringColumnType` |
+| `StatusLabelColumn` | `status_label` | `StringColumnType` |
+| `StatusIsFinalColumn` | `status_is_final` | `BoolColumnType` |
 
 ## Column Types
 
@@ -275,6 +380,8 @@ Pure.RelationalSchema.Samples.Schemas/
 | `TimeColumnType` | `time` |
 | `DateTimeColumnType` | `datetime` |
 | `EmptyNameColumnType` | *(empty string)* |
+
+`int` and `long` appear only on the shape tables (`AllColumnTypesTable` and friends) — no domain relation carries either, so every domain column is projection-readable.
 
 ## Dependencies
 
@@ -305,8 +412,8 @@ using Pure.RelationalSchema.Samples.Schemas;
 ISchema schema = new FullRelationalSchema();
 
 // schema.Name.TextValue      == "full_schema"
-// schema.Tables.Count()      == 11
-// schema.ForeignKeys.Count() == 5
+// schema.Tables.Count()      == 13
+// schema.ForeignKeys.Count() == 8
 ```
 
 Underlying components are usable on their own:

@@ -10,9 +10,9 @@ public sealed record SingleColumnForeignKey : IForeignKey
 {
     public ITable ReferencingTable => new OrdersTable();
 
-    public IEnumerable<IColumn> ReferencingColumns => [new UserIdColumn()];
+    public IEnumerable<IColumn> ReferencingColumns => [new OrderUserIdColumn()];
 
     public ITable ReferencedTable => new UsersTable();
 
-    public IEnumerable<IColumn> ReferencedColumns => [new IdColumn()];
+    public IEnumerable<IColumn> ReferencedColumns => [new UserIdColumn()];
 }

@@ -49,46 +49,47 @@ public sealed record CompositeForeignKeyTests
     }
 
     [Fact]
-    public void ReferencingColumnsContainsOrderIdColumn()
+    public void ReferencingColumnsContainsItemOrderIdColumn()
     {
         IForeignKey foreignKey = new CompositeForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencingColumns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemOrderIdColumn()))
+        );
+    }
+
+    [Fact]
+    public void ReferencingColumnsContainsItemTenantIdColumn()
+    {
+        IForeignKey foreignKey = new CompositeForeignKey();
+
+        Assert.Contains(
+            foreignKey.ReferencingColumns,
+            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new ItemTenantIdColumn()))
+        );
+    }
+
+    [Fact]
+    public void ReferencedColumnsContainsOrderIdColumn()
+    {
+        IForeignKey foreignKey = new CompositeForeignKey();
+
+        Assert.Contains(
+            foreignKey.ReferencedColumns,
             c => new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderIdColumn()))
         );
     }
 
     [Fact]
-    public void ReferencingColumnsContainsTenantIdColumn()
-    {
-        IForeignKey foreignKey = new CompositeForeignKey();
-
-        Assert.Contains(
-            foreignKey.ReferencingColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new TenantIdColumn()))
-        );
-    }
-
-    [Fact]
-    public void ReferencedColumnsContainsIdColumn()
+    public void ReferencedColumnsContainsOrderTenantIdColumn()
     {
         IForeignKey foreignKey = new CompositeForeignKey();
 
         Assert.Contains(
             foreignKey.ReferencedColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new IdColumn()))
-        );
-    }
-
-    [Fact]
-    public void ReferencedColumnsContainsTenantIdColumn()
-    {
-        IForeignKey foreignKey = new CompositeForeignKey();
-
-        Assert.Contains(
-            foreignKey.ReferencedColumns,
-            c => new ColumnHash(c).SequenceEqual(new ColumnHash(new TenantIdColumn()))
+            c =>
+                new ColumnHash(c).SequenceEqual(new ColumnHash(new OrderTenantIdColumn()))
         );
     }
 }
