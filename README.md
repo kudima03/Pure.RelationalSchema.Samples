@@ -27,6 +27,25 @@ The catalogue is graded from trivial to full-set, so a consumer can pick the exa
 
 Because samples are ordinary `ISchema`/`ITable`/`IColumn`/`IIndex`/`IForeignKey` implementations, they compose with the rest of the ecosystem — hashing, serialization, OpenAPI schemas, storage adapters and conditions — without any adapter code.
 
+## Domain Table Set
+
+The `users`/`orders`/`products`/`order_items`/`employees` tables form the
+relational core of `FullRelationalSchema`. Their foreign keys relate as:
+
+```
+users (id, tenant_id, name, birth_date, is_active, created_at)
+└── orders (id, tenant_id, user_id, price, created_at)
+    ├── user_id → users.id                      [SingleColumnForeignKey]
+    └── order_items (id, tenant_id, order_id, product_id, quantity)
+        ├── order_id, tenant_id → orders.id, orders.tenant_id  [CompositeForeignKey]
+        └── product_id → products.id             [OrderItemsToProductsForeignKey]
+
+products (id, name, description, price)
+
+employees (id, name, manager_id, start_time)
+└── manager_id → employees.id                    [SelfReferencingForeignKey]
+```
+
 ## Schemas
 
 `namespace Pure.RelationalSchema.Samples.Schemas`
