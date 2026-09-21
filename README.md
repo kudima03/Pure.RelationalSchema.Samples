@@ -27,23 +27,58 @@ The catalogue is graded from trivial to full-set, so a consumer can pick the exa
 
 Because samples are ordinary `ISchema`/`ITable`/`IColumn`/`IIndex`/`IForeignKey` implementations, they compose with the rest of the ecosystem — hashing, serialization, OpenAPI schemas, storage adapters and conditions — without any adapter code.
 
-## Domain Table Set
-
-The `users`/`orders`/`products`/`order_items`/`employees` tables form the
-relational core of `FullRelationalSchema`. Their foreign keys relate as:
+## Schema Catalogue
 
 ```
-users (id, tenant_id, name, birth_date, is_active, created_at)
-└── orders (id, tenant_id, user_id, price, created_at)
-    ├── user_id → users.id                      [SingleColumnForeignKey]
-    └── order_items (id, tenant_id, order_id, product_id, quantity)
-        ├── order_id, tenant_id → orders.id, orders.tenant_id  [CompositeForeignKey]
-        └── product_id → products.id             [OrderItemsToProductsForeignKey]
-
-products (id, name, description, price)
-
-employees (id, name, manager_id, start_time)
-└── manager_id → employees.id                    [SelfReferencingForeignKey]
+Pure.RelationalSchema.Samples.Schemas/
+├── EmptyRelationalSchema                    (empty_schema)
+│
+├── SingleTableRelationalSchema               (single_table_schema)
+│   └── SingleColumnTable
+│
+├── RelationalSchemaWithoutForeignKeys        (schema_without_foreign_keys)
+│   ├── EmptyTable
+│   ├── SingleColumnTable
+│   └── TableWithoutIndexes
+│
+├── RelationalSchemaWithIndexes               (schema_with_indexes)
+│   ├── TableWithSingleIndex
+│   └── TableWithIndexes
+│
+├── RelationalSchemaWithAllColumnTypes        (schema_with_all_column_types)
+│   └── AllColumnTypesTable
+│
+├── RelationalSchemaWithForeignKeys           (schema_with_foreign_keys)
+│   ├── UsersTable
+│   ├── OrdersTable
+│   └── SingleColumnForeignKey    orders.user_id → users.id
+│
+├── RelationalSchemaWithCompositeForeignKey   (schema_with_composite_foreign_key)
+│   ├── OrdersTable
+│   ├── OrderItemsTable
+│   └── CompositeForeignKey       order_items.(order_id, tenant_id) → orders.(id, tenant_id)
+│
+├── RelationalSchemaWithSelfReferencingTable  (schema_with_self_referencing_table)
+│   ├── EmployeesTable
+│   └── SelfReferencingForeignKey employees.manager_id → employees.id
+│
+└── FullRelationalSchema                      (full_schema)
+    ├── EmptyTable
+    ├── SingleColumnTable
+    ├── TableWithoutIndexes
+    ├── TableWithSingleIndex
+    ├── TableWithIndexes
+    ├── AllColumnTypesTable
+    ├── UsersTable
+    ├── OrdersTable
+    ├── ProductsTable
+    ├── OrderItemsTable
+    ├── EmployeesTable
+    ├── EmptyColumnsForeignKey
+    ├── SingleColumnForeignKey        orders.user_id → users.id
+    ├── CompositeForeignKey           order_items.(order_id, tenant_id) → orders.(id, tenant_id)
+    ├── OrderItemsToProductsForeignKey order_items.product_id → products.id
+    └── SelfReferencingForeignKey      employees.manager_id → employees.id
 ```
 
 ## Schemas
