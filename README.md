@@ -51,181 +51,351 @@ Each domain relation has exactly one home schema — the schema a cross-domain q
 | `logins` | `audit` |
 | `statuses` | `refs` |
 
-### The join graph
+## Entity-Relationship Diagrams
 
-Every domain relation is reachable from every other by following foreign keys in either direction; the longest cross-domain path touches all three schemas in three hops (`audit.logins` → `users` ← `orders` → `refs.statuses`):
+One diagram per `ISchema` sample, in the same order as the grading table above — these
+are the primary reference for what each schema contains; see [Schemas](#schemas) and the
+tables that follow for the underlying class names. Each diagram reflects exactly that
+schema's own `Tables` and `ForeignKeys` collections — `PK`/`FK` markers, and the
+relationship lines themselves, are per-schema facts, not universal facts about a column.
+For example, `orders.order_user_id` is a foreign-key column wherever
+`SingleColumnForeignKey` is in scope, but is drawn as a plain column in
+`schema_with_composite_foreign_key`, which does not include that foreign key. A `PK`
+marker means the column is covered by a unique `IIndex` sample on that table (see
+[Indexes](#indexes)); `logins` and `statuses` declare no indexes at all, so their natural
+keys (`login_id`, `status_code`) are drawn unmarked, matching the source exactly.
 
+Where a foreign key crosses into a table that is not itself a member of the schema (a
+foreign key is listed in the schema of its *referencing* relation — see
+[Query-grade domains](#query-grade-domains)), the referenced table is still drawn so the
+edge renders, with a note underneath naming its real home schema.
+
+### `empty_schema` — `EmptyRelationalSchema`
+
+No tables and no foreign keys — nothing to diagram.
+
+### `single_table_schema` — `SingleTableRelationalSchema`
+
+```mermaid
+erDiagram
+    single_column_table {
+        uuid id
+    }
 ```
-        audit.logins ──login_user_id──┐
-                                      ▼
-  employees ──employee_user_id──▶  users  ◀──order_user_id── orders ──order_status──▶ refs.statuses
-      │                                                        ▲
-      └─manager_id─┘ (self)                                    │ (order_id, order_tenant_id)
-                                                          order_items ──item_product_id──▶ products
+
+### `schema_without_foreign_keys` — `RelationalSchemaWithoutForeignKeys`
+
+```mermaid
+erDiagram
+    empty_table {
+    }
+    single_column_table {
+        uuid id
+    }
+    table_without_indexes {
+        uuid id
+        string name
+        datetime created_at
+    }
 ```
 
-## Schema Catalogue
+No foreign keys connect these tables — the sample exists to exercise a multi-table,
+relation-free schema.
 
+### `schema_with_indexes` — `RelationalSchemaWithIndexes`
+
+```mermaid
+erDiagram
+    table_with_single_index {
+        uuid id PK
+        string name
+    }
+    table_with_indexes {
+        uuid id PK
+        uuid tenant_id
+        string name
+        datetime created_at
+    }
 ```
-Pure.RelationalSchema.Samples.Schemas/
-├── EmptyRelationalSchema                    (empty_schema)
-│
-├── SingleTableRelationalSchema               (single_table_schema)
-│   └── SingleColumnTable
-│       └── id
-│
-├── RelationalSchemaWithoutForeignKeys        (schema_without_foreign_keys)
-│   ├── EmptyTable
-│   ├── SingleColumnTable
-│   │   └── id
-│   └── TableWithoutIndexes
-│       ├── id
-│       ├── name
-│       └── created_at
-│
-├── RelationalSchemaWithIndexes               (schema_with_indexes)
-│   ├── TableWithSingleIndex
-│   │   ├── id
-│   │   └── name
-│   └── TableWithIndexes
-│       ├── id
-│       ├── tenant_id
-│       ├── name
-│       └── created_at
-│
-├── RelationalSchemaWithAllColumnTypes        (schema_with_all_column_types)
-│   └── AllColumnTypesTable
-│       ├── id
-│       ├── name
-│       ├── age
-│       ├── quantity
-│       ├── price
-│       ├── is_active
-│       ├── birth_date
-│       ├── start_time
-│       ├── created_at
-│       └── (empty name)
-│
-├── RelationalSchemaWithForeignKeys           (schema_with_foreign_keys)  ← core domain, query-grade
-│   ├── UsersTable       users        13 cols   all seven readable types
-│   │   ├── user_id
-│   │   ├── user_tenant_id
-│   │   ├── user_name
-│   │   ├── signup_date
-│   │   ├── user_active
-│   │   ├── last_login
-│   │   ├── user_age
-│   │   ├── shift_start
-│   │   ├── user_score
-│   │   ├── user_precision_value
-│   │   ├── user_edge_date
-│   │   ├── user_edge_datetime
-│   │   └── user_edge_time
-│   ├── OrdersTable       orders        7 cols
-│   │   ├── order_id
-│   │   ├── order_tenant_id
-│   │   ├── order_user_id
-│   │   ├── order_total
-│   │   ├── placed_at
-│   │   ├── order_status
-│   │   └── placed_on
-│   ├── ProductsTable     products      5 cols
-│   │   ├── product_id
-│   │   ├── product_name
-│   │   ├── product_description
-│   │   ├── product_price
-│   │   └── product_in_stock
-│   ├── OrderItemsTable   order_items   5 cols
-│   │   ├── item_id
-│   │   ├── item_tenant_id
-│   │   ├── item_order_id
-│   │   ├── item_product_id
-│   │   └── item_qty
-│   ├── EmployeesTable    employees     5 cols
-│   │   ├── employee_id
-│   │   ├── employee_name
-│   │   ├── employee_manager_id
-│   │   ├── employee_shift_start
-│   │   └── employee_user_id
-│   └── ForeignKeys
-│       ├── SingleColumnForeignKey           orders.order_user_id → users.user_id
-│       ├── CompositeForeignKey              order_items.(item_order_id, item_tenant_id)
-│       │                                      → orders.(order_id, order_tenant_id)
-│       ├── OrderItemsToProductsForeignKey   order_items.item_product_id → products.product_id
-│       ├── SelfReferencingForeignKey        employees.employee_manager_id → employees.employee_id
-│       ├── EmployeesToUsersForeignKey       employees.employee_user_id → users.user_id
-│       └── OrdersToStatusesForeignKey       orders.order_status → statuses.status_code   ← cross-domain, string key
-│
-├── RelationalSchemaWithCompositeForeignKey   (schema_with_composite_foreign_key)
-│   ├── OrdersTable       orders        7 cols   (see above)
-│   ├── OrderItemsTable   order_items   5 cols   (see above)
-│   └── ForeignKeys
-│       └── CompositeForeignKey        order_items.(item_order_id, item_tenant_id)
-│                                         → orders.(order_id, order_tenant_id)
-│
-├── RelationalSchemaWithSelfReferencingTable  (schema_with_self_referencing_table)
-│   ├── EmployeesTable    employees     5 cols   (see above)
-│   └── ForeignKeys
-│       └── SelfReferencingForeignKey  employees.employee_manager_id → employees.employee_id
-│
-├── AuditRelationalSchema                      (audit)   ← audit domain
-│   └── LoginsTable       logins        3 cols
-│       ├── login_id
-│       ├── login_user_id
-│       └── login_at
-│       └── ForeignKeys
-│           └── LoginsToUsersForeignKey   logins.login_user_id → users.user_id   ← cross-domain, uuid key
-│
-├── RefsRelationalSchema                       (refs)   ← refs domain, referenced only
-│   └── StatusesTable     statuses      3 cols
-│       ├── status_code
-│       ├── status_label
-│       └── status_is_final
-│
-└── FullRelationalSchema                      (full_schema)
-    ├── EmptyTable
-    ├── SingleColumnTable
-    │   └── id
-    ├── TableWithoutIndexes
-    │   ├── id
-    │   ├── name
-    │   └── created_at
-    ├── TableWithSingleIndex
-    │   ├── id
-    │   └── name
-    ├── TableWithIndexes
-    │   ├── id
-    │   ├── tenant_id
-    │   ├── name
-    │   └── created_at
-    ├── AllColumnTypesTable
-    │   ├── id
-    │   ├── name
-    │   ├── age
-    │   ├── quantity
-    │   ├── price
-    │   ├── is_active
-    │   ├── birth_date
-    │   ├── start_time
-    │   ├── created_at
-    │   └── (empty name)
-    ├── UsersTable        users         13 cols   (see above)
-    ├── OrdersTable       orders         7 cols   (see above)
-    ├── ProductsTable     products       5 cols   (see above)
-    ├── OrderItemsTable   order_items    5 cols   (see above)
-    ├── EmployeesTable    employees      5 cols   (see above)
-    ├── LoginsTable       logins         3 cols   (see above)
-    ├── StatusesTable     statuses       3 cols   (see above)
-    └── ForeignKeys
-        ├── EmptyColumnsForeignKey          empty_table.() → single_column_table.()
-        ├── SingleColumnForeignKey          orders.order_user_id → users.user_id
-        ├── CompositeForeignKey             order_items.(item_order_id, item_tenant_id)
-        │                                     → orders.(order_id, order_tenant_id)
-        ├── OrderItemsToProductsForeignKey  order_items.item_product_id → products.product_id
-        ├── SelfReferencingForeignKey       employees.employee_manager_id → employees.employee_id
-        ├── LoginsToUsersForeignKey         logins.login_user_id → users.user_id
-        ├── OrdersToStatusesForeignKey      orders.order_status → statuses.status_code
-        └── EmployeesToUsersForeignKey      employees.employee_user_id → users.user_id
+
+No foreign keys — the sample exercises unique, non-unique and composite indexes, not
+relations. `tenant_id` on `table_with_indexes` is also covered by `CompositeUniqueIndex`
+alongside `id`; only single-column primary keys are marked `PK` here to keep the diagram
+readable.
+
+### `schema_with_all_column_types` — `RelationalSchemaWithAllColumnTypes`
+
+```mermaid
+erDiagram
+    all_column_types_table {
+        uuid id
+        string name
+        int age
+        long quantity
+        double price
+        bool is_active
+        date birth_date
+        time start_time
+        datetime created_at
+        string empty_name
+    }
+```
+
+`empty_name` stands in for `EmptyNameColumn`, whose real `Name` is the empty string.
+
+### `schema_with_foreign_keys` — `RelationalSchemaWithForeignKeys` (core domain, query-grade)
+
+```mermaid
+erDiagram
+    users {
+        uuid user_id PK
+        uuid user_tenant_id
+        string user_name
+        date signup_date
+        bool user_active
+        datetime last_login
+        double user_age
+        time shift_start
+        double user_score
+        double user_precision_value
+        date user_edge_date
+        datetime user_edge_datetime
+        time user_edge_time
+    }
+    orders {
+        uuid order_id PK
+        uuid order_tenant_id
+        uuid order_user_id FK
+        double order_total
+        datetime placed_at
+        string order_status FK
+        date placed_on
+    }
+    products {
+        uuid product_id PK
+        string product_name
+        string product_description
+        double product_price
+        bool product_in_stock
+    }
+    order_items {
+        uuid item_id PK
+        uuid item_tenant_id
+        uuid item_order_id FK
+        uuid item_product_id FK
+        double item_qty
+    }
+    employees {
+        uuid employee_id PK
+        string employee_name
+        uuid employee_manager_id FK
+        time employee_shift_start
+        uuid employee_user_id FK
+    }
+    statuses {
+        string status_code
+        string status_label
+        bool status_is_final
+    }
+
+    users ||--o{ orders : "order_user_id"
+    users ||--o{ employees : "employee_user_id"
+    employees ||--o{ employees : "employee_manager_id (self)"
+    orders ||--o{ order_items : "item_order_id + item_tenant_id"
+    products ||--o{ order_items : "item_product_id"
+    statuses ||--o{ orders : "order_status"
+```
+
+`statuses` is not a member table of this schema. `OrdersToStatusesForeignKey` is listed
+here because it is homed with its referencing relation (`orders`), but `statuses` itself
+is homed in `refs` — it is drawn only to render the crossing edge.
+
+### `schema_with_composite_foreign_key` — `RelationalSchemaWithCompositeForeignKey`
+
+```mermaid
+erDiagram
+    orders {
+        uuid order_id PK
+        uuid order_tenant_id
+        uuid order_user_id
+        double order_total
+        datetime placed_at
+        string order_status
+        date placed_on
+    }
+    order_items {
+        uuid item_id PK
+        uuid item_tenant_id FK
+        uuid item_order_id FK
+        uuid item_product_id
+        double item_qty
+    }
+
+    orders ||--o{ order_items : "item_order_id + item_tenant_id"
+```
+
+### `schema_with_self_referencing_table` — `RelationalSchemaWithSelfReferencingTable`
+
+```mermaid
+erDiagram
+    employees {
+        uuid employee_id PK
+        string employee_name
+        uuid employee_manager_id FK
+        time employee_shift_start
+        uuid employee_user_id
+    }
+
+    employees ||--o{ employees : "employee_manager_id (self)"
+```
+
+### `audit` — `AuditRelationalSchema`
+
+```mermaid
+erDiagram
+    logins {
+        uuid login_id
+        uuid login_user_id FK
+        datetime login_at
+    }
+    users {
+        uuid user_id PK
+        uuid user_tenant_id
+        string user_name
+        date signup_date
+        bool user_active
+        datetime last_login
+        double user_age
+        time shift_start
+        double user_score
+        double user_precision_value
+        date user_edge_date
+        datetime user_edge_datetime
+        time user_edge_time
+    }
+
+    users ||--o{ logins : "login_user_id"
+```
+
+`users` is not a member table of `audit` — drawn only to render
+`LoginsToUsersForeignKey`'s crossing edge; its home schema is `schema_with_foreign_keys`.
+
+### `refs` — `RefsRelationalSchema`
+
+```mermaid
+erDiagram
+    statuses {
+        string status_code
+        string status_label
+        bool status_is_final
+    }
+```
+
+No foreign keys — `refs` is a leaf domain, referenced only (see
+[Query-grade domains](#query-grade-domains)).
+
+### `full_schema` — `FullRelationalSchema`
+
+Every table and every foreign key in the catalogue — the union of all diagrams above.
+
+```mermaid
+erDiagram
+    empty_table {
+    }
+    single_column_table {
+        uuid id
+    }
+    table_without_indexes {
+        uuid id
+        string name
+        datetime created_at
+    }
+    table_with_single_index {
+        uuid id PK
+        string name
+    }
+    table_with_indexes {
+        uuid id PK
+        uuid tenant_id
+        string name
+        datetime created_at
+    }
+    all_column_types_table {
+        uuid id
+        string name
+        int age
+        long quantity
+        double price
+        bool is_active
+        date birth_date
+        time start_time
+        datetime created_at
+        string empty_name
+    }
+    users {
+        uuid user_id PK
+        uuid user_tenant_id
+        string user_name
+        date signup_date
+        bool user_active
+        datetime last_login
+        double user_age
+        time shift_start
+        double user_score
+        double user_precision_value
+        date user_edge_date
+        datetime user_edge_datetime
+        time user_edge_time
+    }
+    orders {
+        uuid order_id PK
+        uuid order_tenant_id
+        uuid order_user_id FK
+        double order_total
+        datetime placed_at
+        string order_status FK
+        date placed_on
+    }
+    products {
+        uuid product_id PK
+        string product_name
+        string product_description
+        double product_price
+        bool product_in_stock
+    }
+    order_items {
+        uuid item_id PK
+        uuid item_tenant_id
+        uuid item_order_id FK
+        uuid item_product_id FK
+        double item_qty
+    }
+    employees {
+        uuid employee_id PK
+        string employee_name
+        uuid employee_manager_id FK
+        time employee_shift_start
+        uuid employee_user_id FK
+    }
+    logins {
+        uuid login_id
+        uuid login_user_id FK
+        datetime login_at
+    }
+    statuses {
+        string status_code
+        string status_label
+        bool status_is_final
+    }
+
+    empty_table ||--|| single_column_table : "EmptyColumnsForeignKey (no columns)"
+    users ||--o{ orders : "order_user_id"
+    users ||--o{ employees : "employee_user_id"
+    employees ||--o{ employees : "employee_manager_id (self)"
+    orders ||--o{ order_items : "item_order_id + item_tenant_id"
+    products ||--o{ order_items : "item_product_id"
+    users ||--o{ logins : "login_user_id"
+    statuses ||--o{ orders : "order_status"
 ```
 
 ## Schemas
