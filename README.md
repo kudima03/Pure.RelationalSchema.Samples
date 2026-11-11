@@ -566,6 +566,7 @@ No implementation package (`Pure.RelationalSchema` and friends) is referenced, s
 - .NET 8
 - .NET 9
 - .NET 10
+- .NET 11
 
 ## Installation
 
