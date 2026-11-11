@@ -60,11 +60,11 @@ This is a **sample-data NuGet library**: a catalogue of named, predefined relati
 
 **Dependencies are deliberately minimal:** `Pure.RelationalSchema.Abstractions` for the interfaces and `Pure.Primitives` for `String`/`True`/`False`. Do **not** reference `Pure.RelationalSchema` or any other implementation package — the implementations themselves consume these samples, and a reference would create a cycle.
 
-**Multi-targeting:** net7.0, net8.0, net9.0, net10.0. All types must remain AOT-compatible (`IsAotCompatible = true`).
+**Multi-targeting:** net7.0, net8.0, net9.0, net10.0, net11.0. All types must remain AOT-compatible (`IsAotCompatible = true`).
 
 **Package validation** is enabled in the csproj (`EnablePackageValidation`, `PackageValidationBaselineVersion`), so breaking API changes fail the build. Bump the baseline version once a new tag is published.
 
-**Tests:** xUnit project targeting net10.0, mirroring the source layout one `…Tests` record per sample. Membership is asserted by structural hash (`ColumnHash`, `IndexHash`, `TableHash`, `ForeignKeyHash` from `Pure.RelationalSchema.HashCodes`), never by reference equality. Every sample needs: its name, the count of each collection, and a `Assert.Contains` per element — this is what keeps the mutation score at 100%.
+**Tests:** xUnit project targeting net11.0, mirroring the source layout one `…Tests` record per sample. Membership is asserted by structural hash (`ColumnHash`, `IndexHash`, `TableHash`, `ForeignKeyHash` from `Pure.RelationalSchema.HashCodes`), never by reference equality. Every sample needs: its name, the count of each collection, and a `Assert.Contains` per element — this is what keeps the mutation score at 100%.
 
 **CI thresholds** (`.github/workflows/build-and-test.yml`): line coverage 98 (warning at 99) and mutation score 98. The repository currently sits at 100% for both; a new sample without matching tests will fail the build.
 
