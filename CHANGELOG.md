@@ -10,6 +10,16 @@ existing one is a breaking change and is released as such.
 
 ## [Unreleased]
 
+## [0.1.0-preview.1.2.0] - 2026-11-11
+
+### Added
+
+- `net11.0` target framework; tests now run on `net11.0`.
+
+### Changed
+
+- Updated the `Pure.Primitives` dependency to 3.8.0 and `Pure.RelationalSchema.Abstractions` to 1.3.0.
+
 ## [0.1.0-preview.1.1.0] - 2026-10-22
 
 ### Changed
@@ -94,7 +104,8 @@ existing one is a breaking change and is released as such.
   CI-enforced line coverage and mutation score thresholds.
 - Multi-targeting for net7.0, net8.0, net9.0 and net10.0, AOT-compatible.
 
-[Unreleased]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.1.1.0...HEAD
+[Unreleased]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.1.2.0...HEAD
+[0.1.0-preview.1.2.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.1.1.0...0.1.0-preview.1.2.0
 [0.1.0-preview.1.1.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.1.0.0...0.1.0-preview.1.1.0
 [0.1.0-preview.1.0.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/compare/0.1.0-preview.0.1.0...0.1.0-preview.1.0.0
 [0.1.0-preview.0.1.0]: https://github.com/kudima03/Pure.RelationalSchema.Samples/releases/tag/0.1.0-preview.0.1.0
